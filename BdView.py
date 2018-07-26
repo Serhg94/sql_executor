@@ -23,8 +23,8 @@ class BdView(QWidget):
         self.__table_view = QTableView()
         self.__connection_string = QLineEdit()
         self.__request_string = QTextEdit()
-        self.__error_view = QTextBrowser()
-        self.__error_view.setText('Write your first query')
+        self.__text_result_view = QTextBrowser()
+        self.__text_result_view.setText('Write your first query')
         self.__exec_btn = QPushButton('Execute')
         self.__waiting_spinner = QtWaitingSpinner.QtWaitingSpinner()
 
@@ -41,8 +41,8 @@ class BdView(QWidget):
         self.__presentations = QStackedWidget()
         self.__presentations.addWidget(self.__table_view)
         self.__presentations.addWidget(self.__waiting_spinner)
-        self.__presentations.addWidget(self.__error_view)
-        self.__presentations.setCurrentWidget(self.__error_view)
+        self.__presentations.addWidget(self.__text_result_view)
+        self.__presentations.setCurrentWidget(self.__text_result_view)
 
         splitter = QSplitter()
         splitter.setOrientation(Qt.Vertical)
@@ -71,8 +71,8 @@ class BdView(QWidget):
     def showQueryResult(self, error):
         self.__waiting_spinner.stop()
         if error:
-            self.__error_view.setText(error)
-            self.__presentations.setCurrentWidget(self.__error_view)
+            self.__text_result_view.setText(error)
+            self.__presentations.setCurrentWidget(self.__text_result_view)
         else:
             self.__presentations.setCurrentWidget(self.__table_view)
         print(self.__model.rowCount(QModelIndex()))

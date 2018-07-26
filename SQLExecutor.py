@@ -28,8 +28,9 @@ class SQLExecutor(QObject):
             print(url.drivername)
             print(url.username)
             print(url.host)
-        except Exception as e:
-            self.executingEnded.emit(str(e))
+        except Url.ArgumentError as err:
+            self.executingEnded.emit('ERROR: %s' % str(err))
+            return
         self.executingBegan.emit()
         data = eval(query)
         self.resultsObtained.emit(data)
