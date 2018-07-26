@@ -6,11 +6,20 @@ class TableModel(QAbstractTableModel):
         super(TableModel, self).__init__(parent)
         self.__data = list()
 
-    def setData(self, data):
+    def setData(self, column_description, data):
         self.__data = data
+        self.__column_description = column_description
         self.layoutAboutToBeChanged.emit()
         self.dataChanged.emit(self.createIndex(0, 0), self.createIndex(self.rowCount(0), self.columnCount(0)))
         self.layoutChanged.emit()
+
+    def headerData(self, p_int, Qt_Orientation, role=None):
+        if role == Qt.DisplayRole:
+            if Qt_Orientation == Qt.Horizontal:
+                return str(self.__column_description[p_int][0])
+            else:
+                return str(p_int)
+        return QVariant()
 
     def rowCount(self, parent):
         return len(self.__data)
@@ -22,6 +31,6 @@ class TableModel(QAbstractTableModel):
             return 0
 
     def data(self, idx=QModelIndex(), role=None):
-        if (role == Qt.DisplayRole):
-            return self.__data[idx.row()][idx.column()]
+        if role == Qt.DisplayRole:
+            return str(self.__data[idx.row()][idx.column()])
         return QVariant()

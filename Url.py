@@ -18,7 +18,7 @@ import re
 import Compat as util
 
 
-class ArgumentError(BaseException):
+class ArgumentError(Exception):
     """Raised when an invalid or conflicting function argument is supplied.
 
     This error generally corresponds to construction time state errors.
@@ -83,6 +83,14 @@ class URL(object):
         if self.database is not None:
             s += '/' + self.database
         return s
+
+    def toDict(self):
+        params = dict()
+        params['database'] = self.database
+        params['user'] = self.username
+        params['password'] = self.password
+        params['host'] = self.host if self.port is None else '%s:%s' % (self.host, str(self.port))
+        return params
 
     def __str__(self):
         return self.__to_string__(hide_password=False)

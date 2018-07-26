@@ -22,7 +22,9 @@ class BdView(QWidget):
         up_layout = QGridLayout()
         self.__table_view = QTableView()
         self.__connection_string = QLineEdit()
+        self.__connection_string.setText('sqlite:///:memory:')
         self.__request_string = QTextEdit()
+        self.__request_string.setPlaceholderText('Your query')
         self.__text_result_view = QTextBrowser()
         self.__text_result_view.setText('Write your first query')
         self.__exec_btn = QPushButton('Execute')
@@ -75,7 +77,6 @@ class BdView(QWidget):
             self.__presentations.setCurrentWidget(self.__text_result_view)
         else:
             self.__presentations.setCurrentWidget(self.__table_view)
-        print(self.__model.rowCount(QModelIndex()))
 
     def setConnToolTip(self, text):
         self.__connection_string.setToolTip(text)
