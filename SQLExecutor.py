@@ -32,9 +32,25 @@ class SQLExecutor(QObject):
         return desc
 
     def stop(self):
+        """
+        stop working thread
+        :return:
+        """
         self.__work_flag.clear()
         self.__task_exist.set()
         self.__exec_thread.join()
+
+    def __dropCurrConn(self):
+        """
+        close current connection, force reconnect next time
+        :return:
+        """
+        if self.__conn is not None:
+            try:
+                self.__conn.close()
+            except: pass
+        self.__conn = None
+        self.__current_conn_string = ''
 
     def __establishConnection(self, conn_string):
         """
@@ -43,12 +59,12 @@ class SQLExecutor(QObject):
         :return:
         """
         url = Url.make_url(conn_string)
-        if self.__conn is not None:
-            self.__conn.close()
+        self.__dropCurrConn()
         db = Dialect(url.drivername)
         if db.initModule() is None:
             raise Exception('driver for %s not found!' % url.drivername)
         self.__conn = db.connect(**url.translate_connect_args())
+        self.__current_conn_string = conn_string
 
     def __doRequest(self, query):
         """
@@ -84,7 +100,6 @@ class SQLExecutor(QObject):
                 """if connection string has changed - establish connection again """
                 if self.__new_task[0] != self.__current_conn_string:
                     self.__establishConnection(self.__new_task[0])
-                    self.__current_conn_string = self.__new_task[0]
             except Exception as err:
                 status_string = 'Connecting error: %s' % str(err) if str(err) else err.__class__.__name__
             else:
@@ -94,10 +109,16 @@ class SQLExecutor(QObject):
                 except Exception as err:
                     """if request failed - rollback"""
                     status_string = 'Execut error: %s' % str(err) if str(err) else err.__class__.__name__
-                    self.__conn.rollback()
+                    try:
+                        self.__conn.rollback()
+                    except:
+                        self.__dropCurrConn()
                 else:
                     """if request is successful - commit changes"""
-                    self.__conn.commit()
+                    try:
+                        self.__conn.commit()
+                    except:
+                        self.__dropCurrConn()
             self.executingEnded.emit(status_string)
             self.__task_exist.clear()
 
