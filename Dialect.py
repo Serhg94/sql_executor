@@ -2,6 +2,9 @@ import importlib
 
 
 class Dialect:
+    """
+    Implements different connect attrs for some DB-API2 connectors
+    """
 
     db_modules = {
         'postgresql': {
@@ -31,22 +34,30 @@ class Dialect:
         self.__db = None
 
     def initModule(self):
+        """
+        Try to import python DB-API2 connector module
+        :return: module
+        """
         if self.__name in Dialect.db_modules:
             self.__db = importlib.import_module(Dialect.db_modules[self.__name]['package'])
         return self.__db
 
     def connect(self, **kwargs):
+        """
+        Process arguments from Url.translate_connect_args for connecting to DB
+        :param kwargs: arguments from Url.translate_connect_args
+        :return: connection object
+        """
         if self.__name == 'sqlite':
             return self.__db.connect(database=kwargs['database'])
-        elif self.__name == 'postgresql':
-            return self.__db.connect(database=kwargs['database'], user=kwargs['user'], password=kwargs['password']
-                                     , port=kwargs['port'], host=kwargs['host'])
+        elif self.__name == 'postgresql' or self.__name == 'mysql':
+            kwargs['user'] = kwargs['username']
+            del kwargs['username']
+            return self.__db.connect(**kwargs)
         elif self.__name == 'oracle':
-            return self.__db.connect(database=kwargs['database'], user=kwargs['user'], password=kwargs['password']
-                                     , port=kwargs['port'], host=kwargs['host'])
-        elif self.__name == 'mysql':
-            return self.__db.connect(database=kwargs['database'], user=kwargs['user'], password=kwargs['password']
-                                     , port=kwargs['port'], host=kwargs['host'])
+            dsn = self.__db.makedsn(kwargs['host'], str(kwargs['port']), kwargs['database'])
+            return self.__db.connect(dsn=dsn, user=kwargs['username'], password=kwargs['password'])
         elif self.__name == 'mssql':
-            return self.__db.connect(database=kwargs['database'], user=kwargs['user'], password=kwargs['password']
-                                     , port=kwargs['port'], host=kwargs['host'])
+            conString = "DRIVER={SQL Server Native Client 11.0};SERVER=%s,%s;DATABASE=%s;UID=%s;PWD=%s" % (
+                kwargs['host'], kwargs['port'], kwargs['database'], kwargs['username'], kwargs['password'])
+            return self.__db.connect(conString)

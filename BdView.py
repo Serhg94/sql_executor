@@ -1,18 +1,23 @@
 from PyQt5.QtWidgets import QWidget, QTableView, QGridLayout, QLabel, QLineEdit, QTextEdit, QSplitter, QGroupBox\
     , QStackedWidget, QPushButton, QTextBrowser
-from PyQt5.QtCore import Qt, pyqtSignal, QModelIndex
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QCloseEvent
 
 import QtWaitingSpinner
 
 class BdView(QWidget):
 
     initQueryExec = pyqtSignal(str, str)
+    closing = pyqtSignal()
 
     def __init__(self, model, parent=None):
         super(BdView, self).__init__(parent)
         self.__model = model
         self.__initUI()
         self.__connect_slots()
+
+    def closeEvent(self, event: QCloseEvent):
+        self.closing.emit()
 
     def __initUI(self):
         self.__layout = QGridLayout(self)

@@ -7,15 +7,16 @@ import SQLExecutor
 
 app = QApplication(sys.argv)
 model = TableModel.TableModel()
-window = BdView.BdView(model)
+view = BdView.BdView(model)
 controller = SQLExecutor.SQLExecutor()
 
-window.initQueryExec.connect(controller.execQuery)
-controller.executingBegan.connect(window.showWaitingSpinner)
-controller.executingEnded.connect(window.showQueryResult)
+view.closing.connect(controller.stop)
+view.initQueryExec.connect(controller.execQuery)
+controller.executingBegan.connect(view.showWaitingSpinner)
+controller.executingEnded.connect(view.showQueryResult)
 controller.resultsObtained.connect(model.setData)
 
-window.setConnToolTip(controller.getCapabilites())
+view.setConnToolTip(controller.getCapabilites())
 
 sys.exit(app.exec_())
 
