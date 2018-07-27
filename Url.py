@@ -89,7 +89,8 @@ class URL(object):
         params['database'] = self.database
         params['user'] = self.username
         params['password'] = self.password
-        params['host'] = self.host if self.port is None else '%s:%s' % (self.host, str(self.port))
+        params['host'] = self.host
+        params['port'] = self.port
         return params
 
     def __str__(self):
