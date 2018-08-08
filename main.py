@@ -15,6 +15,8 @@ view.initQueryExec.connect(controller.execQuery)
 controller.executingBegan.connect(view.showWaitingSpinner)
 controller.executingEnded.connect(view.showQueryResult)
 controller.resultsObtained.connect(model.setData)
+controller.youCanFetchMore.connect(model.iCanFetchMore)
+model.askForFetchMore.connect(controller.fetchMore)
 
 view.setConnToolTip(controller.getCapabilites())
 
